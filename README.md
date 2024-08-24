@@ -29,6 +29,19 @@ Httprobe
 Waybackurls, Getallurls
 Anew, Grep
 
+## Usage
+```
+./dobby.sh <domain> [-t threads] [-a] [-m timeout]
+Options:
+  -t, --threads   Number of threads (default: 10)
+  -a, --amass     Run Amass for subdomain enumeration
+  -m, --timeout   Amass timeout in seconds (default: 300)
+  -h, --help      Show this help message
+```
+
+![image](https://github.com/user-attachments/assets/d249c2d6-6a8b-4b2d-8b77-e6156c5b93f3)
+
+
 
 ## Installation Guide
 
