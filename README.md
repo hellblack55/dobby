@@ -45,6 +45,10 @@ Options:
 
 ## Installation Guide
 
+```
+git clone https://github.com/hellblack55/dobby
+```
+
 To run the script, you'll need to install several tools. Follow the steps below to install each tool on a Linux system.
 
 ### 1. Install Go (if not already installed)
