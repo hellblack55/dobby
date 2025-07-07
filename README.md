@@ -43,87 +43,17 @@ Options:
 
 
 
-## Installation Guide
+## 🚀 Installation Guide
 
-```
-git clone https://github.com/hellblack55/dobby
-```
-
-To run the script, you'll need to install several tools. Follow the steps below to install each tool on a Linux system.
-
-### 1. Install Go (if not already installed)
-Most of these tools are written in Go, so you'll need it installed on your system.
+Follow these steps to install and set up **Dobby** on a Linux system:
 
 ```bash
-sudo apt update
-sudo apt install -y golang
+git clone https://github.com/hellblack55/dobby
+cd dobby
+chmod +x setup.sh
+./setup.sh
 ```
-
-Add Go binaries to your PATH if you haven't done so:
-```
-export PATH=$PATH:/usr/local/go/bin
-```
-
-## 2. Install Subfinder
-Subfinder is a subdomain discovery tool.
-
-```
-go install -v github.com/projectdiscovery/subfinder/v2/cmd/subfinder@latest
-```
-
-## 3. Install Assetfinder
-Assetfinder is another tool for finding subdomains.
-```
-go install github.com/tomnomnom/assetfinder@latest
-```
-
-## 4. Install Amass (optional)
-Amass is a powerful tool for in-depth subdomain enumeration.
-```
-sudo apt install -y amass
-```
-
-## 5. Install Httprobe
-Httprobe helps you find live hosts among your discovered subdomains.
-```
-go install github.com/tomnomnom/httprobe@latest
-```
-
-## 6. Install Waybackurls
-Waybackurls fetches URLs from the Wayback Machine.
-```
-go install github.com/tomnomnom/waybackurls@latest
-```
-
-## 7. Install Getallurls (GAU)
-GAU fetches URLs from multiple sources.
-```
-go install github.com/lc/gau/v2/cmd/gau@latest
-```
-
-## 8. Install Anew
-Anew ensures only unique lines are appended to your files.
-```
-go install github.com/tomnomnom/anew@latest
-```
-
-## 9. Install Grep
-Grep is a standard tool for searching text using patterns. It's usually pre-installed on most Linux distributions.
-```
-sudo apt install -y grep
-```
-
-## Final Setup
-After installing all the tools, ensure your environment variables are set correctly:
-```
-export PATH=$PATH:$(go env GOPATH)/bin
-```
-
-You can add the above line to your .bashrc or .zshrc file to make it permanent:
-```
-echo 'export PATH=$PATH:$(go env GOPATH)/bin' >> ~/.bashrc
-source ~/.bashrc
-```
+And you are all done!
 
 ## Verification
 You can verify the installation by running the following commands:
