@@ -75,7 +75,7 @@ fetch_urls() {
     printf "Fetching URLs from various sources...\n"
 
     cat "$LIVE_URLS_FILE" | waybackurls >> "$temp_file" &
-    cat "$LIVE_URLS_FILE" | getallurls >> "$temp_file" &
+    cat "$LIVE_URLS_FILE" | gau-go >> "$temp_file" &
 
     wait
 
