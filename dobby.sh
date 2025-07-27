@@ -1,5 +1,14 @@
 #!/bin/bash
 
+# ==============================================================================
+#
+#                                 DOBBY v2.0
+#
+# A comprehensive, recursive reconnaissance script for bug bounty hunting.
+#
+# ==============================================================================
+
+
 # --- Global Variables & Defaults ---
 THREADS=10
 AMASS_RUN=0
@@ -7,14 +16,26 @@ RATE_LIMIT=0
 RECURSIVE_RUN=0
 RECURSION_DEPTH=2 # Default depth if -r is used without -rd
 
-# --- File Path Setup (will be based on DOMAIN variable set later) ---
-# This is intentionally left blank for now
 
 # ==============================================================================
 #
-#                               FUNCTION DEFINITIONS
+#                         SAFETY NET & FUNCTION DEFINITIONS
 #
 # ==============================================================================
+
+# Cleanup function to kill all child processes on exit
+cleanup() {
+    printf "\n[!] Caught exit signal. Shutting down all child processes...\n"
+    # The '-P $$' flag tells pkill to kill all processes whose parent is this script.
+    # $$ is a special variable that holds the Process ID (PID) of the current script.
+    pkill -P $$ > /dev/null 2>&1
+    printf "[✔] Cleanup complete. Exiting.\n"
+    exit
+}
+
+# Trap command: Sets up the safety net.
+# It runs the 'cleanup' function on script EXIT, INTERRUPT (Ctrl+C), or TERMINATE signal.
+trap cleanup EXIT INT TERM
 
 # Function to display the usage and logo
 usage() {
@@ -43,7 +64,8 @@ enumerate() {
     local input_file="$1"
     local output_file="$2"
     
-    cat "$input_file" | subfinder -silent -t "$THREADS" >> "$output_file" &
+    # Use -l flag for subfinder, which is more direct than a pipe.
+    subfinder -l "$input_file" -silent -t "$THREADS" >> "$output_file" &
     
     while IFS= read -r domain; do
         assetfinder --subs-only "$domain" >> "$output_file" &
@@ -69,29 +91,39 @@ run_recursive_enumeration() {
     echo "$root_domain" > "$current_level_domains"
 
     if [[ "$RECURSIVE_RUN" -eq 0 ]]; then
+        # --- Standard non-recursive scan ---
         local temp_results="$OUTPUT_DIR/temp_results.txt"
         enumerate "$current_level_domains" "$temp_results"
         sort -u "$temp_results" | anew "$master_list"
         rm "$temp_results"
     else
+        # --- Recursive scan ---
         printf "[i] Recursive mode enabled. Depth: %s levels.\n" "$RECURSION_DEPTH"
         for (( i=1; i<=RECURSION_DEPTH; i++ )); do
             printf "[+] Starting recursion level %s of %s...\n" "$i" "$RECURSION_DEPTH"
             local next_level_domains="$OUTPUT_DIR/level_$i.txt"
             local temp_results="$OUTPUT_DIR/temp_level_$i_results.txt"
+            
             enumerate "$current_level_domains" "$temp_results"
+            
+            # Find only the brand new subdomains and save them for the next iteration
             sort -u "$temp_results" | anew "$master_list" | tee "$next_level_domains"
+            
+            # If no new subdomains were found, we can stop early
             if [[ ! -s "$next_level_domains" ]]; then
                 printf "[i] No new subdomains found at this level. Halting recursion.\n"
                 rm "$temp_results" "$next_level_domains" "$current_level_domains"
                 break
             fi
+            
             rm "$temp_results" "$current_level_domains"
             current_level_domains="$next_level_domains"
         done
+        # Final cleanup of the last level file
         [[ -f "$current_level_domains" ]] && rm "$current_level_domains"
     fi
     
+    # Copy the final master list to the main subdomains file
     cp "$master_list" "$SUBDOMAINS_FILE"
     rm "$master_list"
     
@@ -169,9 +201,9 @@ for arg in "$@"; do
 done
 
 # --- Check if Domain is provided ---
-if [[ -z "$DOMAIN" ]]; then
-    echo "Error: Domain not provided."
-    usage >&2 # Now this works because the function is defined above
+# This is done first and calls the `usage` function which is now defined.
+if [[ $# -eq 0 ]] || [[ -z "$DOMAIN" ]]; then
+    usage
     exit 1
 fi
 
