@@ -176,4 +176,4 @@ while [[ $# -gt 0 ]]; do
 done
 
 # --- Run the main function ---
-main```
+main
